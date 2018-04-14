@@ -53,8 +53,9 @@ public class WelcomeBannerController implements Initializable {
                 Stage primaryStage = new Stage();
                 primaryStage.setTitle("Bacteria Classifier");
                 primaryStage.getIcons().add(new Image("/image/app_icon.png"));
-                primaryStage.resizableProperty().setValue(Boolean.FALSE);
-                primaryStage.setScene(new Scene(parent, 650, 352));
+                primaryStage.setMinWidth(970);
+                primaryStage.setMinHeight(900);
+                primaryStage.setScene(new Scene(parent, 1600, 900));
                 Stage stage = (Stage) progressBarAppLoading.getScene().getWindow();
                 stage.hide();
                 primaryStage.show();

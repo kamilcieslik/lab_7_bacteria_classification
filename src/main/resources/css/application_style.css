@@ -9,7 +9,7 @@
 }
 
 .appThemeContainer {
-    -fx-background-image: url("../image/app_theme.jpg");
+    -fx-background-image: url("../image/app_theme_main.jpg");
     -fx-border-image-repeat: no-repeat;
     -fx-background-size: contain;
 }

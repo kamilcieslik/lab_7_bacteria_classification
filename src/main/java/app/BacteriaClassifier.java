@@ -1,6 +1,10 @@
 package app;
 
+import database.BacteriaClassifierService;
+import database.DbConnection;
 import javafx.application.Application;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.controller.WelcomeBannerController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -11,10 +15,14 @@ import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class BacteriaClassifier extends Application {
+    public static DbConnection dbConnection;
+    public static BacteriaClassifierService bacteriaClassifierService;
+    public static BooleanProperty dbConnectionStatus = new SimpleBooleanProperty(false); 
 
     @Override
     public void start(Stage primaryStage) {
@@ -41,6 +49,14 @@ public class BacteriaClassifier extends Application {
     }
 
     public void stop()  {
+        if (dbConnection!=null) {
+            try {
+                dbConnection.closeConnection();
+            } catch (SQLException e) {
+                dbConnection=null;
+            }
+        }
+
         System.exit(0);
     }
 
