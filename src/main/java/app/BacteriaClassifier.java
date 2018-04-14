@@ -18,8 +18,10 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 
 public class BacteriaClassifier extends Application {
+    public static Preferences preferences;
     public static DbConnection dbConnection;
     public static BacteriaClassifierService bacteriaClassifierService;
     public static BooleanProperty dbConnectionStatus = new SimpleBooleanProperty(false); 
@@ -61,6 +63,7 @@ public class BacteriaClassifier extends Application {
     }
 
     public static void main(String[] args) {
+        preferences = Preferences.userRoot();
         launch(args);
     }
 }

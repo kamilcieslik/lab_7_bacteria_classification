@@ -22,8 +22,7 @@ public class WelcomeBannerController implements Initializable {
     @FXML
     private ProgressBar progressBarAppLoading;
 
-    public void initialize(URL location, ResourceBundle resources) {
-    }
+    public void initialize(URL location, ResourceBundle resources) {}
 
     public void initMainScene() {
         try {

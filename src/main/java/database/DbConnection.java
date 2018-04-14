@@ -8,7 +8,9 @@ public class DbConnection {
     private Connection connection;
 
     public DbConnection(String db_url, String login, String password) throws SQLException {
-        connection = DriverManager.getConnection(db_url, login, password);
+        DriverManager.setLoginTimeout(3);
+        connection = DriverManager.getConnection("jdbc:mysql://" + db_url + "?useSSL=false&useUnicode=true" +
+                "&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", login, password);
         connection.setAutoCommit(true);
     }
 
