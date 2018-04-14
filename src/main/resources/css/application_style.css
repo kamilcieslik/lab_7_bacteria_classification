@@ -1,15 +1,15 @@
 .welcomeBannerThemeContainer {
-    -fx-background-image: url("../image/app_theme.png");
+    -fx-background-image: url("../image/app_theme.jpg");
     -fx-border-image-repeat: no-repeat;
     -fx-background-size: cover;
 }
 
 .progressBarAppLoading {
-    -fx-accent: #268798;
+    -fx-accent: #3f3f3f;
 }
 
 .appThemeContainer {
-    -fx-background-image: url("../image/app_theme.png");
+    -fx-background-image: url("../image/app_theme.jpg");
     -fx-border-image-repeat: no-repeat;
     -fx-background-size: contain;
 }

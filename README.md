@@ -1,1 +1,1 @@
-# Klasyfikacja bakterii o zadanym genotypie
+# Klasyfikator bakterii o zadanym genotypie
