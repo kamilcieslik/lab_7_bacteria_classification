@@ -1,0 +1,1 @@
+# Klasyfikacja bakterii o zadanym genotypie
