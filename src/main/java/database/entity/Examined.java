@@ -1,9 +1,17 @@
 package database.entity;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Examined extends Entity {
+    @XmlAttribute(name = "bacteriaGenotype")
     private String genotype;
+    @XmlAttribute(name = "bacteriaClass")
     private String bacteriaClass;
 
     public Examined() {
