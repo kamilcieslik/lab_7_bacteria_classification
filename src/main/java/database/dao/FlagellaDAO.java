@@ -35,7 +35,7 @@ public class FlagellaDAO implements EntityCRUD<Flagella> {
     }
 
     @Override
-    public Boolean saveEntity(Flagella entity) throws SQLException {
+    public Flagella saveEntity(Flagella entity) throws SQLException {
         String statement = "INSERT INTO flagella (alpha, beta, number, examined_id) VALUES (?, ?, ?, ?)";
 
         PreparedStatement preparedStatement = dbConnection.getConnection().prepareStatement(statement);
@@ -50,11 +50,11 @@ public class FlagellaDAO implements EntityCRUD<Flagella> {
             entity.setId(resultSet.getInt(1));
 
         preparedStatement.close();
-        return methodSucceeded;
+        return (methodSucceeded) ? entity : null;
     }
 
     @Override
-    public Boolean updateEntity(Flagella entity) throws SQLException {
+    public Flagella updateEntity(Flagella entity) throws SQLException {
         String statement = "UPDATE flagella SET alpha=?, beta=?, number=?, examined_id=? WHERE id=?";
 
         PreparedStatement preparedStatement = dbConnection.getConnection().prepareStatement(statement);
@@ -66,7 +66,7 @@ public class FlagellaDAO implements EntityCRUD<Flagella> {
 
         Boolean methodSucceeded = preparedStatement.executeUpdate() > 0;
         preparedStatement.close();
-        return methodSucceeded;
+        return (methodSucceeded) ? entity : null;
     }
 
     @Override

@@ -37,7 +37,7 @@ public class HistoryDAO implements EntityCRUD<History> {
     }
 
     @Override
-    public Boolean saveEntity(History entity) throws SQLException {
+    public History saveEntity(History entity) throws SQLException {
         String statement = "INSERT INTO history (date, examined_id) VALUES (?, ?)";
 
         PreparedStatement preparedStatement = dbConnection.getConnection().prepareStatement(statement);
@@ -50,11 +50,11 @@ public class HistoryDAO implements EntityCRUD<History> {
             entity.setId(resultSet.getInt(1));
 
         preparedStatement.close();
-        return methodSucceeded;
+        return (methodSucceeded) ? entity : null;
     }
 
     @Override
-    public Boolean updateEntity(History entity) throws SQLException {
+    public History updateEntity(History entity) throws SQLException {
         String statement = "UPDATE history SET date=?, examined_id=? WHERE id=?";
 
         PreparedStatement preparedStatement = dbConnection.getConnection().prepareStatement(statement);
@@ -64,7 +64,7 @@ public class HistoryDAO implements EntityCRUD<History> {
 
         Boolean methodSucceeded = preparedStatement.executeUpdate() > 0;
         preparedStatement.close();
-        return methodSucceeded;
+        return (methodSucceeded) ? entity : null;
     }
 
     @Override

@@ -35,7 +35,7 @@ public class ToughnessDAO implements EntityCRUD<Toughness> {
     }
 
     @Override
-    public Boolean saveEntity(Toughness entity) throws SQLException {
+    public Toughness saveEntity(Toughness entity) throws SQLException {
         String statement = "INSERT INTO toughness (beta, gamma, rank, examined_id) VALUES (?, ?, ?, ?)";
 
         PreparedStatement preparedStatement = dbConnection.getConnection().prepareStatement(statement);
@@ -50,11 +50,11 @@ public class ToughnessDAO implements EntityCRUD<Toughness> {
             entity.setId(resultSet.getInt(1));
 
         preparedStatement.close();
-        return methodSucceeded;
+        return (methodSucceeded) ? entity : null;
     }
 
     @Override
-    public Boolean updateEntity(Toughness entity) throws SQLException {
+    public Toughness updateEntity(Toughness entity) throws SQLException {
         String statement = "UPDATE toughness SET beta=?, gamma=?, rank=?, examined_id=? WHERE id=?";
 
         PreparedStatement preparedStatement = dbConnection.getConnection().prepareStatement(statement);
@@ -66,7 +66,7 @@ public class ToughnessDAO implements EntityCRUD<Toughness> {
 
         Boolean methodSucceeded = preparedStatement.executeUpdate() > 0;
         preparedStatement.close();
-        return methodSucceeded;
+        return (methodSucceeded) ? entity : null;
     }
 
     @Override

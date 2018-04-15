@@ -25,7 +25,7 @@ public interface EntityCRUD<T> {
      * @return entity with id assigned by database.
      * @throws SQLException if any.
      */
-    Boolean saveEntity(T entity) throws SQLException;
+    T saveEntity(T entity) throws SQLException;
 
     /**
      * <p>Method updating entity in database.</p>
@@ -34,7 +34,7 @@ public interface EntityCRUD<T> {
      * @return a {@link Boolean} object.
      * @throws SQLException if any.
      */
-    Boolean updateEntity(T entity) throws SQLException;
+    T updateEntity(T entity) throws SQLException;
 
     /**
      * <p>Method returning entity with given id.</p>

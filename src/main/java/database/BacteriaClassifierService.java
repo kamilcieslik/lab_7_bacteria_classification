@@ -31,11 +31,11 @@ public class BacteriaClassifierService {
         return flagellaDAO.getEntities();
     }
 
-    public Boolean saveFlagella(Flagella flagella) throws SQLException {
+    public Flagella saveFlagella(Flagella flagella) throws SQLException {
         return flagellaDAO.saveEntity(flagella);
     }
 
-    public Boolean updateFlagella(Flagella flagella) throws SQLException {
+    public Flagella updateFlagella(Flagella flagella) throws SQLException {
         return flagellaDAO.updateEntity(flagella);
     }
 
@@ -52,11 +52,11 @@ public class BacteriaClassifierService {
         return toughnessDAO.getEntities();
     }
 
-    public Boolean saveToughness(Toughness toughness) throws SQLException {
+    public Toughness saveToughness(Toughness toughness) throws SQLException {
         return toughnessDAO.saveEntity(toughness);
     }
 
-    public Boolean updateToughness(Toughness toughness) throws SQLException {
+    public Toughness updateToughness(Toughness toughness) throws SQLException {
         return toughnessDAO.updateEntity(toughness);
     }
 
@@ -73,11 +73,11 @@ public class BacteriaClassifierService {
         return examinedDAO.getEntities();
     }
 
-    public Boolean saveExamined(Examined toughness) throws SQLException {
+    public Examined saveExamined(Examined toughness) throws SQLException {
         return examinedDAO.saveEntity(toughness);
     }
 
-    public Boolean updateExamined(Examined toughness) throws SQLException {
+    public Examined updateExamined(Examined toughness) throws SQLException {
         return examinedDAO.updateEntity(toughness);
     }
 
@@ -94,11 +94,11 @@ public class BacteriaClassifierService {
         return historyDAO.getEntities();
     }
 
-    public Boolean saveHistory(History history) throws SQLException {
+    public History saveHistory(History history) throws SQLException {
         return historyDAO.saveEntity(history);
     }
 
-    public Boolean updateHistory(History history) throws SQLException {
+    public History updateHistory(History history) throws SQLException {
         return historyDAO.updateEntity(history);
     }
 
@@ -112,5 +112,12 @@ public class BacteriaClassifierService {
 
     public List<HistoryViewProcedureResultModel> getHistoryOfExaminedBacteria(String genotype) throws SQLException {
         return historyDAO.getHistoryOfExaminedBacteria(genotype);
+    }
+
+    // Other:
+    public Examined classifyTheBacteria(String genotype, List<Flagella> flagellaList, List<Toughness> toughnessList){
+        // TODO:
+
+        return null;
     }
 }

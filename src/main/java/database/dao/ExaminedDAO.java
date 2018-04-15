@@ -2,6 +2,7 @@ package database.dao;
 
 import database.DbConnection;
 import database.entity.Examined;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,7 +34,7 @@ public class ExaminedDAO implements EntityCRUD<Examined> {
     }
 
     @Override
-    public Boolean saveEntity(Examined entity) throws SQLException {
+    public Examined saveEntity(Examined entity) throws SQLException {
         String statement = "INSERT INTO examined (genotype, class) VALUES (?, ?)";
 
         PreparedStatement preparedStatement = dbConnection.getConnection().prepareStatement(statement);
@@ -46,11 +47,11 @@ public class ExaminedDAO implements EntityCRUD<Examined> {
             entity.setId(resultSet.getInt(1));
 
         preparedStatement.close();
-        return methodSucceeded;
+        return (methodSucceeded) ? entity : null;
     }
 
     @Override
-    public Boolean updateEntity(Examined entity) throws SQLException {
+    public Examined updateEntity(Examined entity) throws SQLException {
         String statement = "UPDATE examined SET genotype=?, class=? WHERE id=?";
 
         PreparedStatement preparedStatement = dbConnection.getConnection().prepareStatement(statement);
@@ -60,7 +61,7 @@ public class ExaminedDAO implements EntityCRUD<Examined> {
 
         Boolean methodSucceeded = preparedStatement.executeUpdate() > 0;
         preparedStatement.close();
-        return methodSucceeded;
+        return (methodSucceeded) ? entity : null;
     }
 
     @Override
