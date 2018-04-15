@@ -16,8 +16,8 @@ public class ExaminedBacteriaXmlWriteParser {
     public ExaminedBacteriaXmlWriteParser() {
     }
 
-    public void writeTestTemplate(List<Examined> examinedBactriaList, String directoryPath) throws JAXBException {
-        ExaminedBacteriaContainer examinedBacteriaContainer = new ExaminedBacteriaContainer(examinedBactriaList);
+    public void writeExaminedBacteriaList(List<Examined> examinedBacteriaList, String directoryPath) throws JAXBException {
+        ExaminedBacteriaContainer examinedBacteriaContainer = new ExaminedBacteriaContainer(examinedBacteriaList);
         JAXBContext jaxbContext = JAXBContext.newInstance(ExaminedBacteriaContainer.class);
         Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
         jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);

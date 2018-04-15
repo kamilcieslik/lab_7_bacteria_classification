@@ -2,9 +2,14 @@ package app;
 
 import database.BacteriaClassifierService;
 import database.DbConnection;
+import database.entity.Examined;
+import database.procedures_results.HistoryViewProcedureResultModel;
+import javafx.UnclassifiedBacteria;
 import javafx.application.Application;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.controller.WelcomeBannerController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -15,6 +20,7 @@ import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 
 import java.io.IOException;
+import java.net.NoRouteToHostException;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,7 +30,10 @@ public class BacteriaClassifier extends Application {
     public static Preferences preferences;
     public static DbConnection dbConnection;
     public static BacteriaClassifierService bacteriaClassifierService;
-    public static BooleanProperty dbConnectionStatus = new SimpleBooleanProperty(false); 
+    public static BooleanProperty dbConnectionStatus = new SimpleBooleanProperty(false);
+    public static ObservableList<Examined> examinedObservableList = FXCollections.observableArrayList();
+    public static ObservableList<HistoryViewProcedureResultModel> historyObservableList = FXCollections.observableArrayList();
+    public static ObservableList<UnclassifiedBacteria> unclassifiedBacteriaObservableList = FXCollections.observableArrayList();
 
     @Override
     public void start(Stage primaryStage) {
@@ -65,5 +74,32 @@ public class BacteriaClassifier extends Application {
     public static void main(String[] args) {
         preferences = Preferences.userRoot();
         launch(args);
+    }
+
+    public static void startNewSessionWithDatabase(){
+        BacteriaClassifier.examinedObservableList.clear();
+        BacteriaClassifier.historyObservableList.clear();
+        BacteriaClassifier.unclassifiedBacteriaObservableList.clear();
+        if (BacteriaClassifier.bacteriaClassifierService != null)
+            try {
+                BacteriaClassifier.examinedObservableList.addAll(BacteriaClassifier.bacteriaClassifierService.getExaminedList());
+            } catch (SQLException e) {
+                databaseConnectionHasBeenLost(e);
+            }
+    }
+
+    public static void databaseConnectionHasBeenLost(SQLException e) {
+        if (!(e.getCause() != null && e.getCause().getCause() != null && e.getCause().getCause() instanceof NoRouteToHostException)) {
+            BacteriaClassifier.preferences.put("bacteria_classifier_host", "");
+            BacteriaClassifier.preferences.put("bacteria_classifier_port", "");
+            BacteriaClassifier.preferences.put("bacteria_classifier_database", "");
+            BacteriaClassifier.preferences.put("bacteria_classifier_login", "");
+            BacteriaClassifier.preferences.put("bacteria_classifier_password", "");
+        }
+        
+        BacteriaClassifier.bacteriaClassifierService = null;
+        BacteriaClassifier.examinedObservableList.clear();
+        BacteriaClassifier.historyObservableList.clear();
+        BacteriaClassifier.dbConnectionStatus.setValue(false);
     }
 }

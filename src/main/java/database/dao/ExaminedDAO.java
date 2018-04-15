@@ -27,7 +27,7 @@ public class ExaminedDAO implements EntityCRUD<Examined> {
         while (resultSet.next())
             examinedList.add(new Examined(resultSet.getInt("id"),
                     resultSet.getString("genotype"),
-                    resultSet.getString("bacteriaClass")));
+                    resultSet.getString("class")));
 
         preparedStatement.close();
         return examinedList;
@@ -75,7 +75,23 @@ public class ExaminedDAO implements EntityCRUD<Examined> {
         resultSet.next();
         Examined examined = new Examined(resultSet.getInt("id"),
                 resultSet.getString("genotype"),
-                resultSet.getString("bacteriaClass"));
+                resultSet.getString("class"));
+
+        preparedStatement.close();
+        return examined;
+    }
+
+    public Examined getEntityByGenotype(String genotype) throws SQLException {
+        String statement = "SELECT * FROM examined WHERE genotype=?";
+
+        PreparedStatement preparedStatement = dbConnection.getConnection().prepareStatement(statement);
+        preparedStatement.setString(1, genotype);
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        resultSet.next();
+        Examined examined = new Examined(resultSet.getInt("id"),
+                resultSet.getString("genotype"),
+                resultSet.getString("class"));
 
         preparedStatement.close();
         return examined;

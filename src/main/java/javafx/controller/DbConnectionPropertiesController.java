@@ -1,6 +1,7 @@
 package javafx.controller;
 
 import app.BacteriaClassifier;
+import database.BacteriaClassifierService;
 import database.DbConnection;
 import javafx.CustomMessageBox;
 import javafx.ListenerMethods;
@@ -73,6 +74,7 @@ public class DbConnectionPropertiesController implements Initializable {
             db_url += textFieldDatabase.getText();
 
             try {
+                BacteriaClassifier.bacteriaClassifierService = null;
                 BacteriaClassifier.dbConnection = new DbConnection(db_url, textFieldLogin.getText(), textFieldPassword.getText());
                 BacteriaClassifier.dbConnectionStatus.setValue(true);
                 BacteriaClassifier.preferences.put("bacteria_classifier_host", textFieldHost.getText());
@@ -80,6 +82,8 @@ public class DbConnectionPropertiesController implements Initializable {
                 BacteriaClassifier.preferences.put("bacteria_classifier_database", textFieldDatabase.getText());
                 BacteriaClassifier.preferences.put("bacteria_classifier_login", textFieldLogin.getText());
                 BacteriaClassifier.preferences.put("bacteria_classifier_password", textFieldPassword.getText());
+                BacteriaClassifier.bacteriaClassifierService = new BacteriaClassifierService(BacteriaClassifier.dbConnection);
+                BacteriaClassifier.startNewSessionWithDatabase();
                 Stage stage = (Stage) textFieldHost.getScene().getWindow();
                 stage.close();
             } catch (SQLException e) {
