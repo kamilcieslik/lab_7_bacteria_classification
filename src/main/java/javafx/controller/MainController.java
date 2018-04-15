@@ -27,8 +27,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.NoRouteToHostException;
 import java.net.URL;
-import java.sql.Date;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -50,7 +50,7 @@ public class MainController implements Initializable {
     @FXML
     private TableView<HistoryViewProcedureResultModel> tableViewHistory;
     @FXML
-    private TableColumn<HistoryViewProcedureResultModel, Date> tableColumnHistory_Date;
+    private TableColumn<HistoryViewProcedureResultModel, Timestamp> tableColumnHistory_Date;
     @FXML
     private TableColumn<HistoryViewProcedureResultModel, String> tableColumnHistory_Genotype;
     @FXML
@@ -118,10 +118,11 @@ public class MainController implements Initializable {
     void buttonAddToList_onAction() {
         if (labelGenotype.getText().equals("")) {
             BacteriaClassifier.unclassifiedBacteriaObservableList.add(new UnclassifiedBacteria(textFieldGenotype.getText()));
+            textFieldGenotype.setText("");
         } else
             customMessageBox.showMessageBox(Alert.AlertType.WARNING, "Ostrzeżenie",
                     "Operacja dodania genotypu do listy oczekujących na klasyfikację nie powiedzie się.",
-                    "Powód: nie uzupełniono genotypu lub wprowadzono dane o niepoprawnym formacie.");
+                    "Powód: nie uzupełniono genotypu lub wprowadzono dane o niepoprawnym formacie.").showAndWait();
     }
 
     @FXML
@@ -129,11 +130,46 @@ public class MainController implements Initializable {
         if (BacteriaClassifier.unclassifiedBacteriaObservableList.size() == 0)
             customMessageBox.showMessageBox(Alert.AlertType.WARNING, "Ostrzeżenie",
                     "Operacja klasyfikacji oczekujących bakterii nie powiedzie się.",
-                    "Powód: tablica jest pusta.");
+                    "Powód: tablica jest pusta.").showAndWait();
         else {
-            // TODO:
-
-            BacteriaClassifier.unclassifiedBacteriaObservableList.clear();
+            try {
+                BacteriaClassifier.dbConnection.getConnection().setAutoCommit(false);
+                BacteriaClassifier.unclassifiedBacteriaObservableList.forEach(unclassifiedBacteria -> {
+                    Examined examinedBacteria;
+                    try {
+                        examinedBacteria = BacteriaClassifier.bacteriaClassifierService
+                                .classifyTheBacteria(unclassifiedBacteria, BacteriaClassifier.flagellaList, BacteriaClassifier.toughnessList);
+                        Examined finalExaminedBacteria = examinedBacteria;
+                        if (BacteriaClassifier.examinedObservableList.stream().noneMatch(examined -> examined.getId() == finalExaminedBacteria.getId()))
+                            BacteriaClassifier.examinedObservableList.add(examinedBacteria);
+                    } catch (SQLException e) {
+                        BacteriaClassifier.bacteriaClassifierService = null;
+                        BacteriaClassifier.dbConnectionStatus.setValue(false);
+                        if (e.getCause() != null && e.getCause().getCause() != null && e.getCause().getCause() instanceof NoRouteToHostException) {
+                            customMessageBox.showMessageBox(Alert.AlertType.WARNING, "Ostrzeżenie",
+                                    "Operacja klasyfikacji nie powiodła się.",
+                                    "Powód: wystąpił brak połączenia z Internetem lub blokada Firewall.").showAndWait();
+                        } else
+                            customMessageBox.showMessageBox(Alert.AlertType.WARNING, "Ostrzeżenie",
+                                    "Operacja klasyfikacji nie powiodła się.",
+                                    "Powód: " + e.getMessage()).showAndWait();
+                    }
+                });
+                BacteriaClassifier.dbConnection.getConnection().commit();
+                BacteriaClassifier.dbConnection.getConnection().setAutoCommit(true);
+                BacteriaClassifier.unclassifiedBacteriaObservableList.clear();
+            } catch (SQLException e) {
+                BacteriaClassifier.bacteriaClassifierService = null;
+                BacteriaClassifier.dbConnectionStatus.setValue(false);
+                if (e.getCause() != null && e.getCause().getCause() != null && e.getCause().getCause() instanceof NoRouteToHostException) {
+                    customMessageBox.showMessageBox(Alert.AlertType.WARNING, "Ostrzeżenie",
+                            "Operacja klasyfikacji nie powiodła się.",
+                            "Powód: wystąpił brak połączenia z Internetem lub blokada Firewall.").showAndWait();
+                } else
+                    customMessageBox.showMessageBox(Alert.AlertType.WARNING, "Ostrzeżenie",
+                            "Operacja klasyfikacji nie powiodła się.",
+                            "Powód: " + e.getMessage()).showAndWait();
+            }
         }
     }
 
@@ -141,10 +177,30 @@ public class MainController implements Initializable {
     void buttonClassify_onAction() {
         if (labelGenotype.getText().equals("")) {
             // TODO:
+            try {
+                Examined examinedBacteria = BacteriaClassifier.bacteriaClassifierService
+                        .classifyTheBacteria(new UnclassifiedBacteria(textFieldGenotype.getText()),
+                                BacteriaClassifier.flagellaList, BacteriaClassifier.toughnessList);
+                if (BacteriaClassifier.examinedObservableList.stream().noneMatch(examined -> examined.getId() == examinedBacteria.getId()))
+                    BacteriaClassifier.examinedObservableList.add(examinedBacteria);
+
+                textFieldGenotype.setText("");
+            } catch (SQLException e) {
+                BacteriaClassifier.bacteriaClassifierService = null;
+                BacteriaClassifier.dbConnectionStatus.setValue(false);
+                if (e.getCause() != null && e.getCause().getCause() != null && e.getCause().getCause() instanceof NoRouteToHostException) {
+                    customMessageBox.showMessageBox(Alert.AlertType.WARNING, "Ostrzeżenie",
+                            "Operacja klasyfikacji nie powiodła się.",
+                            "Powód: wystąpił brak połączenia z Internetem lub blokada Firewall.").showAndWait();
+                } else
+                    customMessageBox.showMessageBox(Alert.AlertType.WARNING, "Ostrzeżenie",
+                            "Operacja klasyfikacji nie powiodła się.",
+                            "Powód: " + e.getMessage()).showAndWait();
+            }
         } else
             customMessageBox.showMessageBox(Alert.AlertType.WARNING, "Ostrzeżenie",
                     "Operacja klasyfikacji nie powiedzie się.",
-                    "Powód: nie uzupełniono genotypu lub wprowadzono dane o niepoprawnym formacie.");
+                    "Powód: nie uzupełniono genotypu lub wprowadzono dane o niepoprawnym formacie.").showAndWait();
     }
 
     @FXML
@@ -155,26 +211,31 @@ public class MainController implements Initializable {
         } else
             customMessageBox.showMessageBox(Alert.AlertType.WARNING, "Ostrzeżenie",
                     "Operacja usunięcia nie powiedzie się.",
-                    "Powód: nie zaznaczono niesklasyfikowanej bakterii.");
+                    "Powód: nie zaznaczono niesklasyfikowanej bakterii.").showAndWait();
     }
 
     @FXML
     void buttonDisplayWholeHistory_onAction() {
-        try {
-            BacteriaClassifier.historyObservableList.clear();
-            BacteriaClassifier.historyObservableList.addAll(BacteriaClassifier.bacteriaClassifierService
-                    .getHistoryOfExaminedBacteria(null));
-        } catch (SQLException e) {
-            BacteriaClassifier.databaseConnectionHasBeenLost(e);
-            if (e.getCause() != null && e.getCause().getCause() != null && e.getCause().getCause() instanceof NoRouteToHostException) {
-                customMessageBox.showMessageBox(Alert.AlertType.WARNING, "Ostrzeżenie",
-                        "Historia nie zostanie wyświetlona.",
-                        "Powód: wystąpił brak połączenia z Internetem lub blokada Firewall.").showAndWait();
-            } else
-                customMessageBox.showMessageBox(Alert.AlertType.WARNING, "Ostrzeżenie",
-                        "Historia nie zostanie wyświetlona.",
-                        "Powód: " + e.getMessage()).showAndWait();
-        }
+        if (BacteriaClassifier.bacteriaClassifierService != null)
+            try {
+                BacteriaClassifier.historyObservableList.clear();
+                BacteriaClassifier.historyObservableList.addAll(BacteriaClassifier.bacteriaClassifierService
+                        .getHistoryOfExaminedBacteria(null));
+            } catch (SQLException e) {
+                BacteriaClassifier.bacteriaClassifierService = null;
+                BacteriaClassifier.dbConnectionStatus.setValue(false);
+                if (e.getCause() != null && e.getCause().getCause() != null && e.getCause().getCause() instanceof NoRouteToHostException) {
+                    customMessageBox.showMessageBox(Alert.AlertType.WARNING, "Ostrzeżenie",
+                            "Historia nie zostanie wyświetlona.",
+                            "Powód: wystąpił brak połączenia z Internetem lub blokada Firewall.").showAndWait();
+                } else
+                    customMessageBox.showMessageBox(Alert.AlertType.WARNING, "Ostrzeżenie",
+                            "Historia nie zostanie wyświetlona.",
+                            "Powód: " + e.getMessage()).showAndWait();
+            }
+        else
+            customMessageBox.showMessageBox(Alert.AlertType.WARNING, "Ostrzeżenie",
+                    "Historia nie zostanie wyświetlona.", "Powód: brak połączenia z bazą danych.").showAndWait();
     }
 
     @FXML
@@ -211,25 +272,29 @@ public class MainController implements Initializable {
     @FXML
     void tableViewExaminedBacteria_onMouseClicked() {
         if (tableViewExaminedBacteria.getSelectionModel().getSelectedItem() != null) {
-            try {
-                BacteriaClassifier.historyObservableList.clear();
-                BacteriaClassifier.historyObservableList.addAll(BacteriaClassifier.bacteriaClassifierService
-                        .getHistoryOfExaminedBacteria(tableViewExaminedBacteria.getSelectionModel().getSelectedItem().getGenotype()));
-            } catch (SQLException e) {
-                BacteriaClassifier.databaseConnectionHasBeenLost(e);
-                if (e.getCause() != null && e.getCause().getCause() != null && e.getCause().getCause() instanceof NoRouteToHostException) {
-                    customMessageBox.showMessageBox(Alert.AlertType.WARNING, "Ostrzeżenie",
-                            "Historia nie zostanie wyświetlona.",
-                            "Powód: wystąpił brak połączenia z Internetem lub blokada Firewall.").showAndWait();
-                } else
-                    customMessageBox.showMessageBox(Alert.AlertType.WARNING, "Ostrzeżenie",
-                            "Historia nie zostanie wyświetlona.",
-                            "Powód: " + e.getMessage()).showAndWait();
-            }
-        } else
-            customMessageBox.showMessageBox(Alert.AlertType.WARNING, "Ostrzeżenie",
-                    "Historia nie zostanie wyświetlona.",
-                    "Powód: nie zaznaczono sklasyfikowanej bakterii.");
+            if (BacteriaClassifier.bacteriaClassifierService != null)
+                try {
+                    BacteriaClassifier.historyObservableList.clear();
+                    BacteriaClassifier.historyObservableList.addAll(BacteriaClassifier.bacteriaClassifierService
+                            .getHistoryOfExaminedBacteria(tableViewExaminedBacteria.getSelectionModel().getSelectedItem().getGenotype()));
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    if (e.getCause() != null && e.getCause().getCause() != null && e.getCause().getCause() instanceof NoRouteToHostException) {
+                        BacteriaClassifier.bacteriaClassifierService = null;
+                        BacteriaClassifier.dbConnectionStatus.setValue(false);
+                        customMessageBox.showMessageBox(Alert.AlertType.WARNING, "Ostrzeżenie",
+                                "Historia nie zostanie wyświetlona.",
+                                "Powód: wystąpił brak połączenia z Internetem lub blokada Firewall.").showAndWait();
+                    } else
+                        customMessageBox.showMessageBox(Alert.AlertType.WARNING, "Ostrzeżenie",
+                                "Historia nie zostanie wyświetlona.",
+                                "Powód: " + e.getMessage()).showAndWait();
+                }
+            else
+                customMessageBox.showMessageBox(Alert.AlertType.WARNING, "Ostrzeżenie",
+                        "Historia zaznaczonej bakterii nie zostanie wyświetlona.",
+                        "Powód: brak połączenia z bazą danych.").showAndWait();
+        }
     }
 
     private void attemptToConnectToDatabaseUsingTheCurrentProperties() {
@@ -275,15 +340,17 @@ public class MainController implements Initializable {
         BacteriaClassifier.startNewSessionWithDatabase();
     }
 
-    private TableCell<HistoryViewProcedureResultModel, Date> customDateFormat() {
-        return new TableCell<HistoryViewProcedureResultModel, Date>() {
+    private TableCell<HistoryViewProcedureResultModel, Timestamp> customDateFormat() {
+        return new TableCell<HistoryViewProcedureResultModel, Timestamp>() {
             @Override
-            public void updateItem(Date date, boolean empty) {
+            public void updateItem(Timestamp date, boolean empty) {
                 super.updateItem(date, empty);
                 if (empty) {
                     setText(null);
                 } else {
-                    setText(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(date));
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+                    String formattedDate = sdf.format(date.getTime());
+                    setText(formattedDate);
                 }
             }
         };

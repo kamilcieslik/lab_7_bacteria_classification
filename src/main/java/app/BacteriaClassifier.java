@@ -3,6 +3,8 @@ package app;
 import database.BacteriaClassifierService;
 import database.DbConnection;
 import database.entity.Examined;
+import database.entity.Flagella;
+import database.entity.Toughness;
 import database.procedures_results.HistoryViewProcedureResultModel;
 import javafx.UnclassifiedBacteria;
 import javafx.application.Application;
@@ -22,6 +24,8 @@ import javafx.stage.WindowEvent;
 import java.io.IOException;
 import java.net.NoRouteToHostException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -34,6 +38,8 @@ public class BacteriaClassifier extends Application {
     public static ObservableList<Examined> examinedObservableList = FXCollections.observableArrayList();
     public static ObservableList<HistoryViewProcedureResultModel> historyObservableList = FXCollections.observableArrayList();
     public static ObservableList<UnclassifiedBacteria> unclassifiedBacteriaObservableList = FXCollections.observableArrayList();
+    public static List<Flagella> flagellaList = new ArrayList<>();
+    public static List<Toughness> toughnessList = new ArrayList<>();
 
     @Override
     public void start(Stage primaryStage) {
@@ -80,10 +86,15 @@ public class BacteriaClassifier extends Application {
         BacteriaClassifier.examinedObservableList.clear();
         BacteriaClassifier.historyObservableList.clear();
         BacteriaClassifier.unclassifiedBacteriaObservableList.clear();
+        BacteriaClassifier.flagellaList.clear();
+        BacteriaClassifier.toughnessList.clear();
         if (BacteriaClassifier.bacteriaClassifierService != null)
             try {
                 BacteriaClassifier.examinedObservableList.addAll(BacteriaClassifier.bacteriaClassifierService.getExaminedList());
+                BacteriaClassifier.flagellaList.addAll(BacteriaClassifier.bacteriaClassifierService.getFlagellaList());
+                BacteriaClassifier.toughnessList.addAll(BacteriaClassifier.bacteriaClassifierService.getToughnessList());
             } catch (SQLException e) {
+            e.printStackTrace();
                 databaseConnectionHasBeenLost(e);
             }
     }
@@ -98,8 +109,6 @@ public class BacteriaClassifier extends Application {
         }
         
         BacteriaClassifier.bacteriaClassifierService = null;
-        BacteriaClassifier.examinedObservableList.clear();
-        BacteriaClassifier.historyObservableList.clear();
         BacteriaClassifier.dbConnectionStatus.setValue(false);
     }
 }

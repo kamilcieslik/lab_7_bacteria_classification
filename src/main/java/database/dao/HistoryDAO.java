@@ -1,14 +1,10 @@
 package database.dao;
 
 import database.DbConnection;
-import database.entity.Flagella;
 import database.entity.History;
 import database.procedures_results.HistoryViewProcedureResultModel;
 
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +25,7 @@ public class HistoryDAO implements EntityCRUD<History> {
 
         while (resultSet.next())
             historyList.add(new History(resultSet.getInt("id"),
-                    resultSet.getDate("date"),
+                    resultSet.getTimestamp("date"),
                     resultSet.getInt("examined_id")));
 
         preparedStatement.close();
@@ -40,8 +36,8 @@ public class HistoryDAO implements EntityCRUD<History> {
     public History saveEntity(History entity) throws SQLException {
         String statement = "INSERT INTO history (date, examined_id) VALUES (?, ?)";
 
-        PreparedStatement preparedStatement = dbConnection.getConnection().prepareStatement(statement);
-        preparedStatement.setDate(1, entity.getDate());
+        PreparedStatement preparedStatement = dbConnection.getConnection().prepareStatement(statement, Statement.RETURN_GENERATED_KEYS);
+        preparedStatement.setTimestamp(1, entity.getDate());
         preparedStatement.setInt(2, entity.getExaminedId());
         Boolean methodSucceeded = preparedStatement.execute();
 
@@ -58,7 +54,7 @@ public class HistoryDAO implements EntityCRUD<History> {
         String statement = "UPDATE history SET date=?, examined_id=? WHERE id=?";
 
         PreparedStatement preparedStatement = dbConnection.getConnection().prepareStatement(statement);
-        preparedStatement.setDate(1, entity.getDate());
+        preparedStatement.setTimestamp(1, entity.getDate());
         preparedStatement.setInt(2, entity.getExaminedId());
         preparedStatement.setInt(3, entity.getId());
 
@@ -77,7 +73,7 @@ public class HistoryDAO implements EntityCRUD<History> {
 
         resultSet.next();
         History history = new History(resultSet.getInt("id"),
-                resultSet.getDate("date"),
+                resultSet.getTimestamp("date"),
                 resultSet.getInt("examined_id"));
 
         preparedStatement.close();
@@ -103,17 +99,17 @@ public class HistoryDAO implements EntityCRUD<History> {
         if (genotype == null)
             callableStatement = dbConnection.getConnection().prepareCall("call GetHistoryOfExaminedBacteria()");
         else {
-            callableStatement = dbConnection.getConnection().prepareCall("call GetHistoryOfExaminedBacteriaByGenotype()");
+            callableStatement = dbConnection.getConnection().prepareCall("call GetHistoryOfExaminedBacteriaByGenotype(?)");
             callableStatement.setString("genotype", genotype);
         }
         ResultSet rs = callableStatement.executeQuery();
 
         while (rs.next())
-            viewProcedureResultModelList.add(new HistoryViewProcedureResultModel(rs.getDate("date"),
+            viewProcedureResultModelList.add(new HistoryViewProcedureResultModel(rs.getTimestamp("date"),
                     rs.getString("genotype"),
                     rs.getInt("alpha"),
                     rs.getInt("beta"),
-                    rs.getInt("gama"),
+                    rs.getInt("gamma"),
                     rs.getString("class")));
 
         callableStatement.close();

@@ -5,6 +5,7 @@ import database.entity.Toughness;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class ToughnessDAO implements EntityCRUD<Toughness> {
     @Override
     public List<Toughness> getEntities() throws SQLException {
         List<Toughness> toughnessList = new ArrayList<>();
-        String statement = "SELECT * FROM flagella";
+        String statement = "SELECT * FROM toughness";
 
         PreparedStatement preparedStatement = dbConnection.getConnection().prepareStatement(statement);
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -27,8 +28,7 @@ public class ToughnessDAO implements EntityCRUD<Toughness> {
             toughnessList.add(new Toughness(resultSet.getInt("id"),
                     resultSet.getInt("beta"),
                     resultSet.getInt("gamma"),
-                    resultSet.getString("rank"),
-                    resultSet.getInt("examined_id")));
+                    resultSet.getString("rank")));
 
         preparedStatement.close();
         return toughnessList;
@@ -36,13 +36,12 @@ public class ToughnessDAO implements EntityCRUD<Toughness> {
 
     @Override
     public Toughness saveEntity(Toughness entity) throws SQLException {
-        String statement = "INSERT INTO toughness (beta, gamma, rank, examined_id) VALUES (?, ?, ?, ?)";
+        String statement = "INSERT INTO toughness (beta, gamma, rank) VALUES (?, ?, ?)";
 
-        PreparedStatement preparedStatement = dbConnection.getConnection().prepareStatement(statement);
+        PreparedStatement preparedStatement = dbConnection.getConnection().prepareStatement(statement, Statement.RETURN_GENERATED_KEYS);
         preparedStatement.setInt(1, entity.getBeta());
         preparedStatement.setInt(2, entity.getGamma());
         preparedStatement.setString(3, entity.getRank());
-        preparedStatement.setInt(4, entity.getExaminedId());
         Boolean methodSucceeded = preparedStatement.execute();
 
         ResultSet resultSet = preparedStatement.getGeneratedKeys();
@@ -55,14 +54,13 @@ public class ToughnessDAO implements EntityCRUD<Toughness> {
 
     @Override
     public Toughness updateEntity(Toughness entity) throws SQLException {
-        String statement = "UPDATE toughness SET beta=?, gamma=?, rank=?, examined_id=? WHERE id=?";
+        String statement = "UPDATE toughness SET beta=?, gamma=?, rank=? WHERE id=?";
 
         PreparedStatement preparedStatement = dbConnection.getConnection().prepareStatement(statement);
         preparedStatement.setInt(1, entity.getBeta());
         preparedStatement.setInt(2, entity.getGamma());
         preparedStatement.setString(3, entity.getRank());
-        preparedStatement.setInt(4, entity.getExaminedId());
-        preparedStatement.setInt(5, entity.getId());
+        preparedStatement.setInt(4, entity.getId());
 
         Boolean methodSucceeded = preparedStatement.executeUpdate() > 0;
         preparedStatement.close();
@@ -81,8 +79,7 @@ public class ToughnessDAO implements EntityCRUD<Toughness> {
         Toughness toughness = new Toughness(resultSet.getInt("id"),
                 resultSet.getInt("beta"),
                 resultSet.getInt("gamma"),
-                resultSet.getString("rank"),
-                resultSet.getInt("examined_id"));
+                resultSet.getString("rank"));
 
         preparedStatement.close();
         return toughness;

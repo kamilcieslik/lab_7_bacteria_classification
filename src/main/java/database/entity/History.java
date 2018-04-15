@@ -1,26 +1,31 @@
 package database.entity;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Objects;
 
 public class History extends Entity {
-    private Date date;
+    private Timestamp date;
     private Integer examinedId;
 
     public History() {
     }
 
-    public History(Integer id, Date date, Integer examinedId) {
+    public History(Integer examinedId) {
+        this.date = new Timestamp(System.currentTimeMillis());
+        this.examinedId = examinedId;
+    }
+
+    public History(Integer id, Timestamp date, Integer examinedId) {
         super(id);
         this.date = date;
         this.examinedId = examinedId;
     }
 
-    public Date getDate() {
+    public Timestamp getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(Timestamp date) {
         this.date = date;
     }
 

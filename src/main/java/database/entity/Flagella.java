@@ -6,17 +6,21 @@ public class Flagella extends Entity {
     private Integer alpha;
     private Integer beta;
     private Integer number;
-    private Integer examinedId;
 
     public Flagella() {
     }
 
-    public Flagella(Integer id, Integer alpha, Integer beta, Integer number, Integer examinedId) {
+    public Flagella(Integer alpha, Integer beta, Integer number) {
+        this.alpha = alpha;
+        this.beta = beta;
+        this.number = number;
+    }
+
+    public Flagella(Integer id, Integer alpha, Integer beta, Integer number) {
         super(id);
         this.alpha = alpha;
         this.beta = beta;
         this.number = number;
-        this.examinedId = examinedId;
     }
 
     public Integer getAlpha() {
@@ -43,14 +47,6 @@ public class Flagella extends Entity {
         this.number = number;
     }
 
-    public Integer getExaminedId() {
-        return examinedId;
-    }
-
-    public void setExaminedId(Integer examinedId) {
-        this.examinedId = examinedId;
-    }
-
     @Override
     public String toString() {
         return "Flagella{" +
@@ -58,7 +54,6 @@ public class Flagella extends Entity {
                 ", alpha=" + alpha +
                 ", beta=" + beta +
                 ", number=" + number +
-                ", examinedId=" + examinedId +
                 '}';
     }
 
@@ -69,13 +64,12 @@ public class Flagella extends Entity {
         Flagella flagella = (Flagella) o;
         return Objects.equals(alpha, flagella.alpha) &&
                 Objects.equals(beta, flagella.beta) &&
-                Objects.equals(number, flagella.number) &&
-                Objects.equals(examinedId, flagella.examinedId);
+                Objects.equals(number, flagella.number);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(alpha, beta, number, examinedId);
+        return Objects.hash(alpha, beta, number);
     }
 }

@@ -9,6 +9,7 @@ import database.entity.Flagella;
 import database.entity.History;
 import database.entity.Toughness;
 import database.procedures_results.HistoryViewProcedureResultModel;
+import javafx.UnclassifiedBacteria;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -18,6 +19,11 @@ public class BacteriaClassifierService {
     private ToughnessDAO toughnessDAO;
     private ExaminedDAO examinedDAO;
     private HistoryDAO historyDAO;
+
+    private Double currentDistance;
+    private Double minDistance;
+    private Flagella nearestFlagella;
+    private Toughness nearestToughness;
 
     public BacteriaClassifierService(DbConnection dbConnection) {
         flagellaDAO = new FlagellaDAO(dbConnection);
@@ -73,16 +79,20 @@ public class BacteriaClassifierService {
         return examinedDAO.getEntities();
     }
 
-    public Examined saveExamined(Examined toughness) throws SQLException {
-        return examinedDAO.saveEntity(toughness);
+    public Examined saveExamined(Examined examined) throws SQLException {
+        return examinedDAO.saveEntity(examined);
     }
 
-    public Examined updateExamined(Examined toughness) throws SQLException {
-        return examinedDAO.updateEntity(toughness);
+    public Examined updateExamined(Examined examined) throws SQLException {
+        return examinedDAO.updateEntity(examined);
     }
 
     public Examined getExaminedById(Integer id) throws SQLException {
         return examinedDAO.getEntityById(id);
+    }
+
+    public Examined getExaminedByGenotype(String genotype) throws SQLException {
+        return examinedDAO.getEntityByGenotype(genotype);
     }
 
     public Boolean deleteExaminedById(Integer id) throws SQLException {
@@ -115,9 +125,44 @@ public class BacteriaClassifierService {
     }
 
     // Other:
-    public Examined classifyTheBacteria(String genotype, List<Flagella> flagellaList, List<Toughness> toughnessList){
-        // TODO:
+    public Examined classifyTheBacteria(UnclassifiedBacteria unclassifiedBacteria, List<Flagella> flagellaList, List<Toughness> toughnessList) throws SQLException {
+        Examined examinedBacteria;
 
-        return null;
+        examinedBacteria = getExaminedByGenotype(unclassifiedBacteria.getGenotype());
+
+        minDistance = Double.MAX_VALUE;
+        flagellaList.forEach(flagellaNeighbour -> {
+            currentDistance = Math.sqrt(Math.pow((flagellaNeighbour.getAlpha() - unclassifiedBacteria.getAlpha()), 2)
+                    + Math.pow((flagellaNeighbour.getBeta() - unclassifiedBacteria.getBeta()), 2));
+            if (currentDistance < minDistance) {
+                minDistance = currentDistance;
+                nearestFlagella = flagellaNeighbour;
+            }
+        });
+
+        minDistance = Double.MAX_VALUE;
+        toughnessList.forEach(toughnessNeighbour -> {
+            currentDistance = Math.sqrt(Math.pow((toughnessNeighbour.getBeta() - unclassifiedBacteria.getBeta()), 2)
+                    + Math.pow((toughnessNeighbour.getGamma() - unclassifiedBacteria.getGamma()), 2));
+            if (currentDistance < minDistance) {
+                minDistance = currentDistance;
+                nearestToughness = toughnessNeighbour;
+            }
+        });
+
+        if (examinedBacteria == null) {
+            examinedBacteria = new Examined(unclassifiedBacteria.getGenotype(),
+                    String.valueOf(nearestFlagella.getNumber()) + nearestToughness.getRank(),
+                    nearestFlagella.getId(), nearestToughness.getId());
+            saveExamined(examinedBacteria);
+        } else {
+            examinedBacteria.setBacteriaClass(String.valueOf(nearestFlagella.getNumber()) + nearestToughness.getRank());
+            examinedBacteria.setFlagellaId(nearestFlagella.getId());
+            examinedBacteria.setToughnessId(nearestToughness.getId());
+            updateExamined(examinedBacteria);
+        }
+
+        saveHistory(new History(examinedBacteria.getId()));
+        return examinedBacteria;
     }
 }

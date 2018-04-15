@@ -1,10 +1,10 @@
 package database.procedures_results;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Objects;
 
 public class HistoryViewProcedureResultModel {
-    private Date date;
+    private Timestamp date;
     private String genotype;
     private Integer alpha;
     private Integer beta;
@@ -14,7 +14,7 @@ public class HistoryViewProcedureResultModel {
     public HistoryViewProcedureResultModel() {
     }
 
-    public HistoryViewProcedureResultModel(Date date, String genotype, Integer alpha, Integer beta, Integer gamma, String bacteriaClass) {
+    public HistoryViewProcedureResultModel(Timestamp date, String genotype, Integer alpha, Integer beta, Integer gamma, String bacteriaClass) {
         this.date = date;
         this.genotype = genotype;
         this.alpha = alpha;
@@ -23,7 +23,7 @@ public class HistoryViewProcedureResultModel {
         this.bacteriaClass = bacteriaClass;
     }
 
-    public Date getDate() {
+    public Timestamp getDate() {
         return date;
     }
 
